@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Quiz de Notas de Guitarra</title>
     <style>
         body {
@@ -42,6 +42,8 @@
             padding: 10px 20px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            display: flex;
+            gap: 15px;
         }
         .main-container {
             display: flex;
@@ -61,12 +63,14 @@
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.6);
             width: fit-content;
+            box-sizing: border-box;
         }
         .fret-markers-vertical {
             display: flex;
             flex-direction: column;
             width: 40px;
             margin-right: 5px;
+            flex-shrink: 0;
         }
         .fret-number-v {
             height: 55px;
@@ -76,6 +80,7 @@
             font-weight: bold;
             color: #d4c4a8;
             font-size: 1.1em;
+            box-sizing: border-box;
         }
         .fret-number-v:first-child {
             height: 35px;
@@ -89,12 +94,13 @@
             background: #3e2617;
             border: 2px solid #2c1a0e;
             border-radius: 4px;
-            width: max-content;
+            flex: 1;
         }
         .string-container {
             display: flex;
             flex-direction: column;
-            width: 50px;
+            flex: 1; 
+            min-width: 35px; 
             position: relative;
         }
         .fret {
@@ -104,10 +110,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            box-sizing: border-box;
         }
         .fret:first-child {
             height: 35px;
-            border-bottom: 8px solid #d4c4a8; /* Cejuela (Nut) */
+            border-bottom: 8px solid #d4c4a8; 
             background: #2a1910;
         }
         .fret:last-child {
@@ -124,18 +131,18 @@
             pointer-events: none;
         }
         .target {
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             background: #e74c3c;
             border: 3px solid #ffffff;
             border-radius: 50%;
             z-index: 3;
-            box-shadow: 0 0 15px rgba(231,76,60,0.9);
             display: none;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            animation: pulse 1.5s infinite;
         }
         .inlay {
             position: absolute;
@@ -149,11 +156,12 @@
             transform: translate(-50%, -50%);
             opacity: 0.9;
             box-shadow: inset 0 0 5px rgba(0,0,0,0.4);
+            pointer-events: none;
         }
         
         .options-container {
             flex: 1;
-            max-width: 400px;
+            max-width: 450px;
             min-width: 300px;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -206,6 +214,7 @@
             outline: none;
             font-weight: bold;
             width: 100%;
+            box-sizing: border-box;
         }
 
         .settings-btn {
@@ -219,8 +228,10 @@
             font-weight: bold;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             transition: background 0.2s;
+            box-sizing: border-box;
         }
         .settings-btn:hover { background: #686d76; }
 
@@ -231,18 +242,21 @@
             z-index: 100; 
             left: 0; top: 0; 
             width: 100%; height: 100%; 
-            background-color: rgba(0,0,0,0.7); 
+            background-color: rgba(0,0,0,0.8); 
             justify-content: center; 
             align-items: center;
+            padding: 10px;
+            box-sizing: border-box;
         }
         .modal-content {
             background-color: #2c2f33;
             padding: 30px;
             border-radius: 12px;
-            width: 90%;
+            width: 100%;
             max-width: 400px;
             box-shadow: 0 5px 25px rgba(0,0,0,0.8);
             color: #fff;
+            box-sizing: border-box;
         }
         .modal-content h2 { margin-top: 0; color: #f1c40f; text-align: center;}
         .setting-group {
@@ -313,15 +327,85 @@
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
 
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(231,76,60,0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(231,76,60,0); }
+            100% { box-shadow: 0 0 0 0 rgba(231,76,60,0); }
+        }
+
+        /* 📱 RESPONSIVE MOBILE */
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                padding-bottom: 0;
+            }
+            .header h1 {
+                font-size: 1.6em;
+            }
+            .header {
+                margin-bottom: 10px;
+            }
+            .controls {
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+            }
+            .controls > * {
+                width: 100%;
+            }
+            .stats {
+                justify-content: space-around;
+            }
             .main-container {
                 flex-direction: column;
                 align-items: center;
+                gap: 20px;
+                padding-bottom: 20px;
             }
-            .options-container {
+            
+            /* Ajuste fluido del mástil */
+            .fretboard-wrapper {
+                padding: 15px 10px 15px 5px;
                 width: 100%;
-                max-width: 100%;
+                max-width: 400px;
+            }
+            .string-container {
+                min-width: 0; 
+            }
+            .fret-number-v {
+                font-size: 1em;
+            }
+            
+            /* Panel de opciones sticky abajo */
+            .options-container {
+                position: sticky;
+                bottom: 0;
+                z-index: 50;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+                padding: 15px;
+                border-radius: 15px 15px 0 0;
                 box-sizing: border-box;
+                width: calc(100% + 20px);
+                margin: 0 -10px;
+                box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
+            }
+            .note-btn {
+                padding: 12px 5px;
+                font-size: 1.1em;
+                box-shadow: 0 3px 0 #5b6eae;
+            }
+            .note-btn:active {
+                transform: translateY(3px);
+                box-shadow: none;
+            }
+            
+            /* Modal ajustes responsive */
+            .modal-content {
+                padding: 20px;
+            }
+            .fret-range input {
+                width: 55px;
             }
         }
     </style>
@@ -337,8 +421,8 @@
             </select>
             <button class="settings-btn" onclick="openSettings()">⚙️ Ajustes</button>
             <div class="stats">
-                ✅ Aciertos: <span id="score" style="color:#43b581; font-weight:bold;">0</span> | 
-                ❌ Errores: <span id="errors" style="color:#f04747; font-weight:bold;">0</span>
+                <span>✅ Aciertos: <strong id="score" style="color:#43b581;">0</strong></span>
+                <span>❌ Errores: <strong id="errors" style="color:#f04747;">0</strong></span>
             </div>
         </div>
     </div>
@@ -505,8 +589,6 @@
                 } else if (accidentalsMode === 'flat') {
                     label = flats[i];
                 } else {
-                    // Aleatorio para las notas alteradas
-                    // Si la nota natural no tiene alteración, dará lo mismo, pero para las alteradas (ej C# o Db) variará.
                     label = Math.random() > 0.5 ? sharps[i] : flats[i];
                 }
                 document.getElementById(`btn-${i}`).textContent = label;
@@ -535,19 +617,21 @@
                 document.getElementById(`target-${currentString}-${currentFret}`).style.display = 'none';
             }
             
-            // Elegir cuerda aleatoria
             currentString = Math.floor(Math.random() * 6);
             
-            // Elegir traste aleatorio dentro del rango configurado
             const range = maxFret - minFret + 1;
             currentFret = Math.floor(Math.random() * range) + minFret;
             
             const targetEl = document.getElementById(`target-${currentString}-${currentFret}`);
             targetEl.style.display = 'block';
             
+            // Efecto de Auto-Scroll suave en dispositivos móviles si queda fuera de pantalla
+            setTimeout(() => {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+            
             currentTargetIndex = (openStrings[currentString] + currentFret) % 12;
 
-            // Si está en modo aleatorio (# y b), volvemos a generar los nombres para esta ronda
             if (accidentalsMode === 'random') {
                 updateNotation();
             }
@@ -585,7 +669,6 @@
             document.getElementById('errors').textContent = errors;
         }
 
-        // Funciones del Modal de Configuración
         function openSettings() {
             document.getElementById('min-fret').value = minFret;
             document.getElementById('max-fret').value = maxFret;
@@ -616,11 +699,9 @@
             maxFret = newMax;
             accidentalsMode = document.getElementById('accidentals-select').value;
             
-            // Aplicar cambios visuales
             updateFretVisibility();
             updateNotation();
             
-            // Reiniciar partida
             score = 0;
             errors = 0;
             updateStats();
