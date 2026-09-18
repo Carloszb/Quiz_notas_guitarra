@@ -45,58 +45,82 @@
         }
         .main-container {
             display: flex;
+            flex-direction: row;
             gap: 40px;
             align-items: flex-start;
-            max-width: 1200px;
+            justify-content: center;
+            max-width: 1000px;
             width: 100%;
             flex-wrap: wrap;
         }
         .fretboard-wrapper {
-            flex: 2;
-            min-width: 700px;
+            display: flex;
+            flex-direction: row;
             background: #4a2f1d;
-            padding: 20px 10px;
+            padding: 20px 20px 20px 10px;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-            position: relative;
+            width: fit-content;
+        }
+        .fret-markers-vertical {
+            display: flex;
+            flex-direction: column;
+            width: 40px;
+            margin-right: 5px;
+        }
+        .fret-number-v {
+            height: 55px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #d4c4a8;
+            font-size: 1.1em;
+        }
+        .fret-number-v:first-child {
+            height: 35px;
+            font-size: 0.9em;
+            color: #888;
         }
         .fretboard {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             position: relative;
             background: #3e2617;
             border: 2px solid #2c1a0e;
             border-radius: 4px;
+            width: max-content;
         }
         .string-container {
             display: flex;
-            height: 45px;
+            flex-direction: column;
+            width: 50px;
             position: relative;
         }
         .fret {
-            flex: 1;
-            border-right: 3px solid #b3b3b3;
+            height: 55px; 
+            border-bottom: 3px solid #b3b3b3;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
         }
         .fret:first-child {
-            flex: 0.4;
-            border-right: 8px solid #d4c4a8; /* Cejuela (Nut) */
-            background: #2a1910; /* Color diferente para cuerda al aire */
+            height: 35px;
+            border-bottom: 8px solid #d4c4a8; /* Cejuela (Nut) */
+            background: #2a1910;
         }
         .fret:last-child {
-            border-right: none;
+            border-bottom: none;
         }
         .string-line {
             position: absolute;
-            left: 0; right: 0;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 0; bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
             background: #e8e8e8;
             z-index: 1;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
             pointer-events: none;
         }
         .target {
@@ -113,26 +137,6 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
-        .fret-markers {
-            display: flex;
-            height: 25px;
-            margin-top: 10px;
-        }
-        .fret-number {
-            flex: 1;
-            text-align: center;
-            font-weight: bold;
-            color: #d4c4a8;
-            font-size: 1em;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .fret-number:first-child {
-            flex: 0.4;
-            font-size: 0.8em;
-            color: #888;
-        }
         .inlay {
             position: absolute;
             width: 18px;
@@ -140,8 +144,8 @@
             background: #d4c4a8;
             border-radius: 50%;
             z-index: 0;
-            left: 50%;
-            top: 100%;
+            top: 50%;
+            left: 100%;
             transform: translate(-50%, -50%);
             opacity: 0.9;
             box-shadow: inset 0 0 5px rgba(0,0,0,0.4);
@@ -149,6 +153,7 @@
         
         .options-container {
             flex: 1;
+            max-width: 400px;
             min-width: 300px;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -157,6 +162,7 @@
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            align-self: flex-start;
         }
         .note-btn {
             background: #7289da;
@@ -215,15 +221,15 @@
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
 
-        @media (max-width: 1024px) {
-            .fretboard-wrapper {
-                overflow-x: auto;
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                align-items: center;
             }
-            .fretboard {
-                min-width: 800px;
-            }
-            .fret-markers {
-                min-width: 800px;
+            .options-container {
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
             }
         }
     </style>
@@ -246,10 +252,10 @@
 
     <div class="main-container">
         <div class="fretboard-wrapper">
-            <div id="fretboard" class="fretboard">
+            <div id="fret-markers" class="fret-markers-vertical">
                 <!-- Se genera dinámicamente con JS -->
             </div>
-            <div id="fret-markers" class="fret-markers">
+            <div id="fretboard" class="fretboard">
                 <!-- Se genera dinámicamente con JS -->
             </div>
         </div>
@@ -265,10 +271,10 @@
             solfege: ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si']
         };
 
-        // Afinación estándar: E, B, G, D, A, E (De 1ra a 6ta cuerda)
-        // Índices de notas correspondientes en los arreglos de arriba
-        const openStrings = [4, 11, 7, 2, 9, 4]; 
-        const stringThicknesses = [1.5, 2, 2.5, 3.5, 4.5, 5.5];
+        // Afinación estándar orientada verticalmente (De Izquierda a Derecha)
+        // 6ta (E grave), 5ta (A), 4ta (D), 3ra (G), 2da (B), 1ra (E agudo)
+        const openStrings = [4, 9, 2, 7, 11, 4]; 
+        const stringThicknesses = [5.5, 4.5, 3.5, 2.5, 2, 1.5];
 
         let currentNotation = 'english';
         let currentTargetIndex = -1;
@@ -296,26 +302,24 @@
             const fb = document.getElementById('fretboard');
             
             for (let s = 0; s < 6; s++) {
-                const row = document.createElement('div');
-                row.className = 'string-container';
+                const col = document.createElement('div');
+                col.className = 'string-container';
                 
                 const line = document.createElement('div');
                 line.className = 'string-line';
-                line.style.height = stringThicknesses[s] + 'px';
-                row.appendChild(line);
+                line.style.width = stringThicknesses[s] + 'px';
+                col.appendChild(line);
                 
                 for (let f = 0; f <= 12; f++) {
                     const fret = document.createElement('div');
                     fret.className = 'fret';
                     
                     // Puntos marcadores (Inlays)
-                    // Puntos simples en trastes 3, 5, 7, 9
                     if (s === 2 && [3, 5, 7, 9].includes(f)) {
                         const inlay = document.createElement('div');
                         inlay.className = 'inlay';
                         fret.appendChild(inlay);
                     }
-                    // Punto doble en el traste 12
                     if (f === 12) {
                         if (s === 1 || s === 3) {
                             const inlay = document.createElement('div');
@@ -329,16 +333,16 @@
                     target.id = `target-${s}-${f}`;
                     fret.appendChild(target);
                     
-                    row.appendChild(fret);
+                    col.appendChild(fret);
                 }
-                fb.appendChild(row);
+                fb.appendChild(col);
             }
             
-            // Números de traste debajo del mástil
+            // Números de traste a la izquierda del mástil
             const markers = document.getElementById('fret-markers');
             for (let f = 0; f <= 12; f++) {
                 const num = document.createElement('div');
-                num.className = 'fret-number';
+                num.className = 'fret-number-v';
                 num.textContent = f === 0 ? 'Aire' : f;
                 markers.appendChild(num);
             }
@@ -392,7 +396,6 @@
                 score++;
                 updateStats();
                 
-                // Mostrar temporalmente verde y avanzar
                 setTimeout(() => {
                     btn.classList.remove('correct');
                     startRound();
@@ -403,7 +406,6 @@
                 errors++;
                 updateStats();
                 
-                // Quitar estado de error después de la animación de shake
                 setTimeout(() => {
                     btn.classList.remove('wrong');
                 }, 400);
