@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Notas de Guitarra</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #23272a;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #f1c40f;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 30px;
+        }
+        .controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .stats {
+            font-size: 1.2em;
+            background: #2c2f33;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .main-container {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            max-width: 1200px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+        .fretboard-wrapper {
+            flex: 2;
+            min-width: 700px;
+            background: #4a2f1d;
+            padding: 20px 10px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            position: relative;
+        }
+        .fretboard {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: #3e2617;
+            border: 2px solid #2c1a0e;
+            border-radius: 4px;
+        }
+        .string-container {
+            display: flex;
+            height: 45px;
+            position: relative;
+        }
+        .fret {
+            flex: 1;
+            border-right: 3px solid #b3b3b3;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .fret:first-child {
+            flex: 0.4;
+            border-right: 8px solid #d4c4a8; /* Cejuela (Nut) */
+            background: #2a1910; /* Color diferente para cuerda al aire */
+        }
+        .fret:last-child {
+            border-right: none;
+        }
+        .string-line {
+            position: absolute;
+            left: 0; right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #e8e8e8;
+            z-index: 1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+        .target {
+            width: 24px;
+            height: 24px;
+            background: #e74c3c;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            z-index: 3;
+            box-shadow: 0 0 15px rgba(231,76,60,0.9);
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .fret-markers {
+            display: flex;
+            height: 25px;
+            margin-top: 10px;
+        }
+        .fret-number {
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            color: #d4c4a8;
+            font-size: 1em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .fret-number:first-child {
+            flex: 0.4;
+            font-size: 0.8em;
+            color: #888;
+        }
+        .inlay {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: #d4c4a8;
+            border-radius: 50%;
+            z-index: 0;
+            left: 50%;
+            top: 100%;
+            transform: translate(-50%, -50%);
+            opacity: 0.9;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.4);
+        }
+        
+        .options-container {
+            flex: 1;
+            min-width: 300px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            background: #2c2f33;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+        }
+        .note-btn {
+            background: #7289da;
+            color: white;
+            border: none;
+            padding: 20px 10px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 #5b6eae;
+        }
+        .note-btn:hover {
+            background: #677bc4;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #4a5c96;
+        }
+        .note-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .note-btn.correct {
+            background: #43b581 !important;
+            box-shadow: 0 4px 0 #2b8259 !important;
+        }
+        .note-btn.wrong {
+            background: #f04747 !important;
+            box-shadow: 0 4px 0 #b33333 !important;
+            animation: shake 0.4s;
+        }
+        
+        select {
+            padding: 10px 15px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #333;
+            border: 2px solid #7289da;
+            cursor: pointer;
+            outline: none;
+            font-weight: bold;
+        }
+        
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        @media (max-width: 1024px) {
+            .fretboard-wrapper {
+                overflow-x: auto;
+            }
+            .fretboard {
+                min-width: 800px;
+            }
+            .fret-markers {
+                min-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🎸 Quiz de Notas de Guitarra</h1>
+        <div class="controls">
+            <select id="notation-select">
+                <option value="english">Notación Inglesa (A B C D E F G)</option>
+                <option value="solfege">Notación Latina (Do Re Mi Fa Sol La Si)</option>
+            </select>
+            <div class="stats">
+                ✅ Aciertos: <span id="score" style="color:#43b581; font-weight:bold;">0</span> | 
+                ❌ Errores: <span id="errors" style="color:#f04747; font-weight:bold;">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="fretboard-wrapper">
+            <div id="fretboard" class="fretboard">
+                <!-- Se genera dinámicamente con JS -->
+            </div>
+            <div id="fret-markers" class="fret-markers">
+                <!-- Se genera dinámicamente con JS -->
+            </div>
+        </div>
+
+        <div id="options-container" class="options-container">
+            <!-- Botones de notas generados con JS -->
+        </div>
+    </div>
+
+    <script>
+        const notesConfig = {
+            english: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
+            solfege: ['Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si']
+        };
+
+        // Afinación estándar: E, B, G, D, A, E (De 1ra a 6ta cuerda)
+        // Índices de notas correspondientes en los arreglos de arriba
+        const openStrings = [4, 11, 7, 2, 9, 4]; 
+        const stringThicknesses = [1.5, 2, 2.5, 3.5, 4.5, 5.5];
+
+        let currentNotation = 'english';
+        let currentTargetIndex = -1;
+        let currentString = -1;
+        let currentFret = -1;
+        
+        let score = 0;
+        let errors = 0;
+        let isAnimating = false;
+
+        function init() {
+            createFretboard();
+            createNoteButtons();
+            updateNotation();
+            
+            document.getElementById('notation-select').addEventListener('change', (e) => {
+                currentNotation = e.target.value;
+                updateNotation();
+            });
+            
+            startRound();
+        }
+
+        function createFretboard() {
+            const fb = document.getElementById('fretboard');
+            
+            for (let s = 0; s < 6; s++) {
+                const row = document.createElement('div');
+                row.className = 'string-container';
+                
+                const line = document.createElement('div');
+                line.className = 'string-line';
+                line.style.height = stringThicknesses[s] + 'px';
+                row.appendChild(line);
+                
+                for (let f = 0; f <= 12; f++) {
+                    const fret = document.createElement('div');
+                    fret.className = 'fret';
+                    
+                    // Puntos marcadores (Inlays)
+                    // Puntos simples en trastes 3, 5, 7, 9
+                    if (s === 2 && [3, 5, 7, 9].includes(f)) {
+                        const inlay = document.createElement('div');
+                        inlay.className = 'inlay';
+                        fret.appendChild(inlay);
+                    }
+                    // Punto doble en el traste 12
+                    if (f === 12) {
+                        if (s === 1 || s === 3) {
+                            const inlay = document.createElement('div');
+                            inlay.className = 'inlay';
+                            fret.appendChild(inlay);
+                        }
+                    }
+
+                    const target = document.createElement('div');
+                    target.className = 'target';
+                    target.id = `target-${s}-${f}`;
+                    fret.appendChild(target);
+                    
+                    row.appendChild(fret);
+                }
+                fb.appendChild(row);
+            }
+            
+            // Números de traste debajo del mástil
+            const markers = document.getElementById('fret-markers');
+            for (let f = 0; f <= 12; f++) {
+                const num = document.createElement('div');
+                num.className = 'fret-number';
+                num.textContent = f === 0 ? 'Aire' : f;
+                markers.appendChild(num);
+            }
+        }
+
+        function createNoteButtons() {
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            for (let i = 0; i < 12; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'note-btn';
+                btn.id = `btn-${i}`;
+                btn.onclick = () => handleGuess(i);
+                container.appendChild(btn);
+            }
+        }
+
+        function updateNotation() {
+            const notes = notesConfig[currentNotation];
+            for (let i = 0; i < 12; i++) {
+                document.getElementById(`btn-${i}`).textContent = notes[i];
+            }
+        }
+
+        function startRound() {
+            // Ocultar objetivo anterior
+            if (currentString !== -1 && currentFret !== -1) {
+                document.getElementById(`target-${currentString}-${currentFret}`).style.display = 'none';
+            }
+            
+            // Elegir nueva cuerda y traste aleatorios (Cuerda: 0-5, Traste: 0-12)
+            currentString = Math.floor(Math.random() * 6);
+            currentFret = Math.floor(Math.random() * 13);
+            
+            // Mostrar nuevo objetivo
+            const targetEl = document.getElementById(`target-${currentString}-${currentFret}`);
+            targetEl.style.display = 'block';
+            
+            // Calcular el índice de la nota correcta
+            currentTargetIndex = (openStrings[currentString] + currentFret) % 12;
+        }
+
+        function handleGuess(noteIndex) {
+            if (isAnimating) return;
+            
+            const btn = document.getElementById(`btn-${noteIndex}`);
+            
+            if (noteIndex === currentTargetIndex) {
+                isAnimating = true;
+                btn.classList.add('correct');
+                score++;
+                updateStats();
+                
+                // Mostrar temporalmente verde y avanzar
+                setTimeout(() => {
+                    btn.classList.remove('correct');
+                    startRound();
+                    isAnimating = false;
+                }, 600);
+            } else {
+                btn.classList.add('wrong');
+                errors++;
+                updateStats();
+                
+                // Quitar estado de error después de la animación de shake
+                setTimeout(() => {
+                    btn.classList.remove('wrong');
+                }, 400);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('errors').textContent = errors;
+        }
+
+        // Inicializar la aplicación al cargar
+        window.onload = init;
+    </script>
+</body>
+</html>
